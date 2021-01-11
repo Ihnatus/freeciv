@@ -65,8 +65,10 @@ bool could_meet_with_player(const struct player *pplayer,
           && diplomacy_possible(pplayer,aplayer)
           && get_player_bonus(pplayer, EFT_NO_DIPLOMACY) <= 0
           && get_player_bonus(aplayer, EFT_NO_DIPLOMACY) <= 0
-          && (player_has_embassy(aplayer, pplayer) 
-              || player_has_embassy(pplayer, aplayer)
+          && (player_has_real_embassy(aplayer, pplayer) 
+              || player_has_real_embassy(pplayer, aplayer)
+              || get_player_bonus(pplayer, EFT_HAVE_EMBASSIES) > 0
+              || get_player_bonus(aplayer, EFT_HAVE_EMBASSIES) > 0
               || player_diplstate_get(pplayer, aplayer)->contact_turns_left
                  > 0
               || player_diplstate_get(aplayer, pplayer)->contact_turns_left
