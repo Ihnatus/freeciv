@@ -28,6 +28,10 @@ flags =
     _("Helicopter"), _("Defends very badly against Fighters.")
     _("TradeRoute"), _("Can establish trade routes (must travel to target city).")
     _("HelpWonder")
+    ;flags to approximate fighters' "scramble" mechanics
+    _("Bomber"), _("Bad at attacking Fighters")
+    _("Stealth Bomber"), _("Bad at attacking Fighters")
+    _("EarlyFighter"), _("250% defense against Stealth Bombers")
   }
 
 [veteran_system]
@@ -1245,11 +1249,13 @@ uk_food       = 0
 uk_gold       = 0
 targets       = "Air", "Missile"
 bonuses       =
-   { "flag", "type", "value"
-     "Helicopter", "DefenseDivider", 1
-     "Helicopter", "Firepower1", 1
+   { "flag", "type", "value", "quiet"
+     "Helicopter", "DefenseDivider", 1, FALSE
+     "Helicopter", "Firepower1", 1, FALSE
+     "Bomber", "DefenseMultiplier", 3, FALSE
+     "Stealth Bomber", "DefenseMultiplier", 4, TRUE ;divided on 2 => +150%
    }
-flags         = "AirAttacker"
+flags         = "AirAttacker", "EarlyFighter"
 roles         = ""
 helptext      = _("\
 Fighters are your first airborne units. They can\
@@ -1281,7 +1287,7 @@ uk_happy      = 1
 uk_shield     = 1
 uk_food       = 0
 uk_gold       = 0
-flags         = "FieldUnit", "OneAttack", "AirAttacker"
+flags         = "FieldUnit", "OneAttack", "AirAttacker", "Bomber"
 roles         = ""
 helptext      = _("\
 Bombers are specialized airborne units that may\
@@ -1355,6 +1361,8 @@ bonuses       =
    { "flag", "type", "value"
      "Helicopter", "DefenseDivider", 1
      "Helicopter", "Firepower1", 1
+     "Bomber", "DefenseMultiplier", 2
+     "Stealth Bomber", "DefenseMultiplier", 1
    }
 flags         = "AirAttacker"
 roles         = ""
@@ -1388,7 +1396,11 @@ uk_happy      = 1
 uk_shield     = 1
 uk_food       = 0
 uk_gold       = 0
-flags         = "FieldUnit", "OneAttack", "AirAttacker"
+flags         = "FieldUnit", "OneAttack", "AirAttacker", "Stealth Bomber"
+bonuses       =
+   { "flag", "type", "value", "quiet"
+     "EarlyFighter", "DefenseDivider", 1, TRUE
+   }
 roles         = ""
 helptext      = _("\
 An improved Bomber, with improved attack and a higher movement\
