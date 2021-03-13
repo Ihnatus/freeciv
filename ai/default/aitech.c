@@ -384,6 +384,10 @@ struct unit_type *dai_wants_defender_against(struct ai_type *ait,
     int div_bonus = combat_bonus_against(att->bonuses, deftype, CBONUS_DEFENSE_DIVIDER) + 1;
     int def = deftype->defense_strength * mp / div_bonus;
 
+    if (uclass_has_flag(utype_class(deftype), UCF_CAN_FORTIFY)
+        && !utype_has_flag(deftype, UTYF_CANT_FORTIFY)) {
+      def = def * 3 / 2;
+    }
     def_values[utype_index(deftype)] = def;
 
     if (can_city_build_unit_now(pcity, deftype)) {
