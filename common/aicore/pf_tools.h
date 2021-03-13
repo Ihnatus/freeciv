@@ -21,6 +21,9 @@ extern "C" {
 /* common/aicore */
 #include "path_finding.h"
 
+#ifndef AI_NO_FIGHTERS
+#define AI_NO_FIGHTERS FALSE
+#endif
 /* 
  * Use to create 'amphibious' paths. An amphibious path starts on a sea tile,
  * perhaps goes over some other sea tiles, then perhaps goes over some land

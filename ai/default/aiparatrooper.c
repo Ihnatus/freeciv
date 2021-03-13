@@ -359,11 +359,13 @@ void dai_choose_paratrooper(struct ai_type *ait,
       continue;
     }
 
+#if AI_NO_FIGHTERS
     /* Temporary hack because pathfinding can't handle Fighters. */
     if (!uclass_has_flag(utype_class(u_type), UCF_MISSILE)
         && 1 == utype_fuel(u_type)) {
       continue;
     }
+#endif
 
     /* assign tech for paratroopers */
     tech_req = advance_index(u_type->require_advance);

@@ -917,6 +917,17 @@ void pft_fill_utype_attack_param(struct pf_parameter *parameter,
 {
   pft_fill_utype_default_parameter(parameter, punittype,
                                    pstart_tile, pplayer);
+  if (!uclass_has_flag(utype_class(punittype), UCF_MISSILE)
+      && 1 == utype_fuel(punittype)) {
+    /* Kludge to not lose fighters stupidly */
+    if (parameter->move_rate % 2) {
+      parameter->moves_left_initially += 1;
+    }
+    parameter->moves_left_initially -= SINGLE_MOVE; /* Save it for attack */
+    parameter->move_rate /= 2; /* Save it for coming back, hope no slowdown */
+    parameter->fuel = 2;
+    parameter->fuel_left_initially *= 2;
+  }
   pft_fill_attack_param(parameter, punittype);
 }
 
