@@ -1973,7 +1973,7 @@ struct pf_fuel_pos {
   signed short cost;
   unsigned extra_cost;
   unsigned moves_left : 12;
-  signed dir_to_here : 4;
+  unsigned dir_to_here : 4;
   unsigned ref_count : 4;
   struct pf_fuel_pos *prev;
 };
@@ -2864,12 +2864,15 @@ static bool pf_fuel_map_iterate(struct pf_map *pfm)
       /* Consider waiting at this node. To do it, put it back into queue.
        * Node status final step D. to E. */
       node->status = NS_WAITING;
-      node->cost = pf_fuel_map_fill_cost_for_full_moves(params, node->cost,
-                                                        node->moves_left);
-      node->moves_left = pf_move_rate(params);
+      /* We'll apply to the node values we use to calculate waited total_CC
+       * after we get it back from the queue
+       * to get passing-by segments without waiting before it */
       map_index_pq_insert(pffm->queue, tindex,
-                          -pf_fuel_waited_total_CC(node->cost,
-                                                   node->moves_left));
+                          -pf_fuel_waited_total_CC
+                          (pf_fuel_map_fill_cost_for_full_moves(params,
+                                                                node->cost,
+                                                                node->moves_left),
+                           pf_move_rate(params)));
     }
 
     /* Get the next node (the index with the highest priority). First try
@@ -2907,13 +2910,17 @@ static bool pf_fuel_map_iterate(struct pf_map *pfm)
       fc_assert(NS_PROCESSED != node->status);
 #endif
 
-      if (NS_WAITING != node->status && !pf_fuel_node_dangerous(node)) {
+      if ((waited = (NS_WAITING == node->status))) {
+        /* Arrange waiting at the node */
+        node->cost = pf_fuel_map_fill_cost_for_full_moves(params, node->cost,
+                                                          node->moves_left);
+        node->moves_left = pf_move_rate(params);
+      } else if (!pf_fuel_node_dangerous(node)) {
         /* Node status step C. and D. */
         node->status = NS_PROCESSED;
         node->segment = pf_fuel_pos_ref(node->pos);
         return TRUE;
       }
-      waited = (NS_WAITING == node->status);
     }
 
 #ifdef PF_DEBUG
@@ -3117,6 +3124,9 @@ static struct pf_map *pf_fuel_map_new(const struct pf_parameter *parameter)
   node->cost = pf_move_rate(params) - node->moves_left;
   node->extra_cost = 0;
   node->dir_to_here = direction8_invalid();
+  /* Record a segment. We need it for correct paths. */
+  node->segment
+    = pf_fuel_pos_ref(node->pos = pf_fuel_pos_replace(NULL, node));
   node->status = NS_PROCESSED;
 
   return PF_MAP(pffm);
