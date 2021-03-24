@@ -2718,10 +2718,13 @@ static bool pf_fuel_map_iterate(struct pf_map *pfm)
                                   params);
           }
 #ifdef PF_DEBUG
-          fc_assert(1 << (8 * sizeof(node1->cost_to_here[dir])) > cost + 2);
           fc_assert(0 < cost + 2);
 #endif
-          node1->cost_to_here[dir] = cost + 2;
+          if (cost < (1 << (8 * sizeof(node1->cost_to_here[dir]))) - 2) {
+            /* It happens we have not enough bits to cache it */
+            node1->cost_to_here[dir] = cost + 2;
+          }
+
           if (cost == PF_IMPOSSIBLE_MC) {
             continue;
           }
